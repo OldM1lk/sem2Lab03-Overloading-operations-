@@ -8,7 +8,7 @@ namespace OverloadingOperations {
 
     public SquareMatrix(int size) {
       if (size <= 1) {
-        throw new InvalidMatrixSizeException("Матрица не может быть такого размера!" + size);
+        throw new InvalidMatrixSizeException("Матрица не может быть такого размера!");
       }
 
       this.size = size;
