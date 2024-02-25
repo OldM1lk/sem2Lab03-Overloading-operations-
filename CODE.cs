@@ -1,4 +1,3 @@
-
 using System;
 using System.Text;
 
@@ -32,8 +31,7 @@ namespace OverloadingOperations {
 
       for (int rowIndex = 0; rowIndex < matrix1.size; ++rowIndex) {
         for (int columnIndex = 0; columnIndex < matrix1.size; ++columnIndex) {
-          result.matrix[rowIndex, columnIndex] = matrix1.matrix[rowIndex, columnIndex] +
-                                                 matrix2.matrix[rowIndex, columnIndex];
+          result.matrix[rowIndex, columnIndex] += matrix2.matrix[rowIndex, columnIndex];
         }
       }
       return result;
@@ -107,6 +105,7 @@ namespace OverloadingOperations {
 
     public static explicit operator int[,](SquareMatrix matrix) {
       int[,] result = new int[matrix.size, matrix.size];
+
       for (int rowIndex = 0; rowIndex < matrix.size; ++rowIndex) {
         for (int columnIndex = 0; columnIndex < matrix.size; ++columnIndex) {
           result[rowIndex, columnIndex] = matrix.matrix[rowIndex, columnIndex];
@@ -220,8 +219,8 @@ namespace OverloadingOperations {
       }
     }
 
-    public override bool Equals(object obj) {
-      if (obj is SquareMatrix other) {
+    public override bool Equals(object activeObject) {
+      if (activeObject is SquareMatrix other) {
         if (this.size != other.size) {
           return false;
         }
@@ -315,6 +314,10 @@ namespace OverloadingOperations {
       Console.WriteLine(" 1-ая матрица нулевая: " + mymatrix1.IsMatrixNull());
       Console.WriteLine();
       Console.WriteLine(" 2-ая матрица нулевая: " + mymatrix2.IsMatrixNull());
+      Console.WriteLine();
+      Console.WriteLine(" Hash code 1-ой матрицы : " + mymatrix1.GetHashCode());
+      Console.WriteLine();
+      Console.WriteLine(" Hash code 2-ой матрицы : " + mymatrix2.GetHashCode());
       Console.WriteLine();
     }
   }
