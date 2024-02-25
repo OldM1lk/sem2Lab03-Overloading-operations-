@@ -5,16 +5,16 @@ using System.Text;
 namespace OverloadingOperations {
   class SquareMatrix : ICloneable, IComparable<SquareMatrix> {
     public int[,] matrix;
-    public int Size { get; set; }
+    public int size;
 
     public SquareMatrix(int size) {
       if (size <= 1) {
-        throw new InvalidMatrixSizeException("Матрица не может быть такого размера!");
+        throw new InvalidMatrixSizeException("Матрица не может быть такого размера!" + size);
       }
 
-      Size = size;
+      this.size = size;
       matrix = new int[size, size];
-      Random random = new Random();
+      Random random = new Random((int)DateTime.Now.Ticks);
 
       for (int rowIndex = 0; rowIndex < size; ++rowIndex) {
         for (int columnIndex = 0; columnIndex < size; ++columnIndex) {
@@ -24,14 +24,14 @@ namespace OverloadingOperations {
     }
 
     public static SquareMatrix operator +(SquareMatrix matrix1, SquareMatrix matrix2) {
-      if (matrix1.Size != matrix2.Size) {
+      if (matrix1.size != matrix2.size) {
         throw new DiffrentMatrixSizeException("Матрицы должны быть одного размера!");
       }
 
       SquareMatrix result = (SquareMatrix)matrix1.Clone();
 
-      for (int rowIndex = 0; rowIndex < matrix1.Size; ++rowIndex) {
-        for (int columnIndex = 0; columnIndex < matrix1.Size; ++columnIndex) {
+      for (int rowIndex = 0; rowIndex < matrix1.size; ++rowIndex) {
+        for (int columnIndex = 0; columnIndex < matrix1.size; ++columnIndex) {
           result.matrix[rowIndex, columnIndex] = matrix1.matrix[rowIndex, columnIndex] +
                                                  matrix2.matrix[rowIndex, columnIndex];
         }
@@ -40,16 +40,18 @@ namespace OverloadingOperations {
     }
 
     public static SquareMatrix operator *(SquareMatrix matrix1, SquareMatrix matrix2) {
-      if (matrix1.Size != matrix2.Size) {
+      if (matrix1.size != matrix2.size) {
         throw new DiffrentMatrixSizeException("Матрицы должны быть одного размера!");
       }
 
       SquareMatrix result = (SquareMatrix)matrix1.Clone();
 
-      for (int rowIndex = 0; rowIndex < matrix1.Size; ++rowIndex) {
-        for (int columnIndex = 0; columnIndex < matrix1.Size; ++columnIndex) {
-          result.matrix[rowIndex, columnIndex] = matrix1.matrix[rowIndex, columnIndex] *
-                                                 matrix2.matrix[rowIndex, columnIndex];
+      for (int rowIndex = 0; rowIndex < matrix1.size; ++rowIndex) {
+        for (int columnIndex = 0; columnIndex < matrix1.size; ++columnIndex) {
+          for (int positionIndex = 0; positionIndex < matrix1.size; ++positionIndex) {
+            result.matrix[rowIndex, columnIndex] += matrix1.matrix[rowIndex, positionIndex] *
+                                                    matrix2.matrix[positionIndex, columnIndex];
+          }
         }
       }
       return result;
@@ -64,7 +66,7 @@ namespace OverloadingOperations {
     }
 
     public static bool operator <(SquareMatrix matrix1, SquareMatrix matrix2) {
-      if (matrix1.Size != matrix2.Size) {
+      if (matrix1.size != matrix2.size) {
         throw new DiffrentMatrixSizeException("Матрицы должны быть одного размера!");
       }
 
@@ -72,7 +74,7 @@ namespace OverloadingOperations {
     }
 
     public static bool operator >=(SquareMatrix matrix1, SquareMatrix matrix2) {
-      if (matrix1.Size != matrix2.Size) {
+      if (matrix1.size != matrix2.size) {
         throw new DiffrentMatrixSizeException("Матрицы должны быть одного размера!");
       }
 
@@ -80,7 +82,7 @@ namespace OverloadingOperations {
     }
 
     public static bool operator <=(SquareMatrix matrix1, SquareMatrix matrix2) {
-      if (matrix1.Size != matrix2.Size) {
+      if (matrix1.size != matrix2.size) {
         throw new DiffrentMatrixSizeException("Матрицы должны быть одного размера!");
       }
 
@@ -88,7 +90,7 @@ namespace OverloadingOperations {
     }
 
     public static bool operator ==(SquareMatrix matrix1, SquareMatrix matrix2) {
-      if (matrix1.Size != matrix2.Size) {
+      if (matrix1.size != matrix2.size) {
         throw new DiffrentMatrixSizeException("Матрицы должны быть одного размера!");
       }
 
@@ -96,7 +98,7 @@ namespace OverloadingOperations {
     }
 
     public static bool operator !=(SquareMatrix matrix1, SquareMatrix matrix2) {
-      if (matrix1.Size != matrix2.Size) {
+      if (matrix1.size != matrix2.size) {
         throw new DiffrentMatrixSizeException("Матрицы должны быть одного размера!");
       }
 
@@ -104,9 +106,9 @@ namespace OverloadingOperations {
     }
 
     public static explicit operator int[,](SquareMatrix matrix) {
-      int[,] result = new int[matrix.Size, matrix.Size];
-      for (int rowIndex = 0; rowIndex < matrix.Size; ++rowIndex) {
-        for (int columnIndex = 0; columnIndex < matrix.Size; ++columnIndex) {
+      int[,] result = new int[matrix.size, matrix.size];
+      for (int rowIndex = 0; rowIndex < matrix.size; ++rowIndex) {
+        for (int columnIndex = 0; columnIndex < matrix.size; ++columnIndex) {
           result[rowIndex, columnIndex] = matrix.matrix[rowIndex, columnIndex];
         }
       }
@@ -124,8 +126,8 @@ namespace OverloadingOperations {
     public bool IsMatrixNull() {
       int result = 0;
 
-      for (int rowIndex = 0; rowIndex < Size; ++rowIndex) {
-        for (int columnIndex = 0; columnIndex < Size; ++columnIndex) {
+      for (int rowIndex = 0; rowIndex < size; ++rowIndex) {
+        for (int columnIndex = 0; columnIndex < size; ++columnIndex) {
           result += matrix[rowIndex, columnIndex];
         }
       }
@@ -136,65 +138,65 @@ namespace OverloadingOperations {
       }
     }
 
-    public double Determinant() {
-      if (matrix == null) {
-        throw new CustomArgumentNullException("Матрица должна быть ненулевой!");
-      }
-      if (Size == 1) {
-        return matrix[0, 0];
-      } else if (Size == 2) {
+    public int Determinant() {
+      if (size == 2) {
         return (matrix[0, 0] * matrix[1, 1]) - (matrix[0, 1] * matrix[1, 0]);
-      } else if (Size == 3) {
-        return (matrix[0, 0] * matrix[1, 1] * matrix[2, 2]) +
-               (matrix[1, 0] * matrix[2, 1] * matrix[0, 2]) +
-               (matrix[0, 1] * matrix[1, 2] * matrix[2, 0]) -
-               ((matrix[0, 2] * matrix[1, 1] * matrix[2, 0]) +
-               (matrix[0, 1] * matrix[1, 0] * matrix[2, 2]) +
-               (matrix[0, 0] * matrix[1, 2] * matrix[2, 1]));
-      } else {
-        Random random = new Random();
-        return random.Next(-10, 10);
       }
+      int result = 0;
+
+      for (int columnIndex = 0; columnIndex < size; ++columnIndex) {
+        result += (columnIndex % 2 == 1 ? 1 : -1) * matrix[1, columnIndex] * 
+                   GetSmallMatrix(1, columnIndex).Determinant();
+      }
+      return result;
+    }
+
+    private SquareMatrix GetSmallMatrix (int row, int  column) {
+      SquareMatrix result = new SquareMatrix(size - 1);
+
+      for (int rowIndex = 0; rowIndex < size - 1; ++rowIndex) {
+        for (int columnIndex = 0; columnIndex < size - 1; ++columnIndex) {
+          result.matrix[rowIndex, columnIndex] = columnIndex < column ?
+            rowIndex < row ?
+            matrix[rowIndex, columnIndex] :
+            matrix[rowIndex + 1, columnIndex] :
+            rowIndex < row ?
+            matrix[rowIndex, columnIndex + 1] :
+            matrix[rowIndex + 1, columnIndex + 1];
+        }
+      }
+      return result;
+    }
+
+    private SquareMatrix Transposed() {
+      SquareMatrix result = new SquareMatrix(size);
+
+      for (int rowIndex = 0; rowIndex < size; ++rowIndex) {
+        for (int columnIndex = 0; columnIndex < size; ++columnIndex) {
+          result.matrix[rowIndex, columnIndex] = matrix[columnIndex, rowIndex];
+        }
+      }
+      return result;
     }
 
     public SquareMatrix Inverse () {
-      SquareMatrix inverse = (SquareMatrix)this.Clone();
-      SquareMatrix identity = new SquareMatrix(Size);
+      SquareMatrix result = new SquareMatrix(size);
 
-      for (int rowIndex = 0; rowIndex < Size; ++rowIndex) {
-        identity.matrix[rowIndex, rowIndex] = 1;
-      }
-      for (int rowIndex = 0; rowIndex < Size; ++rowIndex) {
-        int ratio = inverse.matrix[rowIndex, rowIndex];
-
-        if (ratio == 0) {
-          throw new NonInvertibleMatrixException("Данная матрица необратима!");
-        }
-        for (int columnIndex = 0; columnIndex < Size; ++columnIndex) {
-          inverse.matrix[rowIndex, columnIndex] /= ratio;
-          identity.matrix[rowIndex, columnIndex] /= ratio;
-        }
-        for (int elementIndex = 0; elementIndex < Size; ++elementIndex) {
-          if (elementIndex == rowIndex) {
-            continue;
-          }
-          int coefficient = inverse.matrix[elementIndex, rowIndex];
-
-          for (int columnIndex = 0; columnIndex < Size; ++columnIndex) {
-            inverse.matrix[elementIndex, columnIndex] -= coefficient * inverse.matrix[rowIndex, columnIndex];
-            identity.matrix[elementIndex, columnIndex] -= coefficient * identity.matrix[rowIndex, columnIndex];
-          }
+      for (int rowIndex = 0; rowIndex < size; ++rowIndex) {
+        for ( int columnIndex = 0; columnIndex < size; ++columnIndex) {
+          result.matrix[rowIndex, columnIndex] = (columnIndex + rowIndex) % 2 == 0 ? 1 : -1 * 
+                                                 GetSmallMatrix(rowIndex, columnIndex).Determinant();
         }
       }
-      return identity;
+      return result.Transposed();
     }
 
     public override string ToString() {
       StringBuilder stringBuilder = new StringBuilder();
 
-      for (int rowIndex = 0; rowIndex < Size; ++rowIndex) {
-        for (int columnIndex = 0; columnIndex < Size; ++columnIndex) {
-          stringBuilder.Append(matrix[rowIndex, columnIndex].ToString("0" + "\t"));
+      for (int rowIndex = 0; rowIndex < size; ++rowIndex) {
+        for (int columnIndex = 0; columnIndex < size; ++columnIndex) {
+          stringBuilder.Append(" " + matrix[rowIndex, columnIndex].ToString("0\t"));
         }
         stringBuilder.AppendLine();
       }
@@ -202,28 +204,29 @@ namespace OverloadingOperations {
     }
 
     public int CompareTo(SquareMatrix other) {
-      if (other == null) {
-        return 1;
-      }
-      double determinantThis = this.Determinant();
-      double determinantOther = other.Determinant();
+      if (other is SquareMatrix) {
+        int determinantThis = this.Determinant();
+        int determinantOther = other.Determinant();
 
-      if (determinantThis < determinantOther) {
-        return -1;
-      } else if (determinantThis > determinantOther) {
-        return 1;
+        if (determinantThis < determinantOther) {
+          return -1;
+        } else if (determinantThis > determinantOther) {
+          return 1;
+        } else {
+          return 0;
+        }
       } else {
-        return 0;
+        return -1;
       }
     }
 
     public override bool Equals(object obj) {
       if (obj is SquareMatrix other) {
-        if (this.Size != other.Size) {
+        if (this.size != other.size) {
           return false;
         }
-        for (int rowIndex = 0; rowIndex < Size; ++rowIndex) {
-          for (int columnIndex = 0; columnIndex < Size; ++columnIndex) {
+        for (int rowIndex = 0; rowIndex < size; ++rowIndex) {
+          for (int columnIndex = 0; columnIndex < size; ++columnIndex) {
             if (this.matrix[rowIndex, columnIndex] != other.matrix[rowIndex, columnIndex]) {
               return false;
             }
@@ -238,10 +241,10 @@ namespace OverloadingOperations {
       unchecked {
         int hash = 17;
         int primeNumber = 23;
-        hash = hash * primeNumber + Size.GetHashCode();
+        hash = hash * primeNumber + size.GetHashCode();
 
-        for (int rowIndex = 0; rowIndex < Size; ++rowIndex) {
-          for (int columnIndex = 0; columnIndex < Size; ++columnIndex) {
+        for (int rowIndex = 0; rowIndex < size; ++rowIndex) {
+          for (int columnIndex = 0; columnIndex < size; ++columnIndex) {
             hash = hash * primeNumber + matrix[rowIndex, columnIndex].GetHashCode();
           }
         }
@@ -250,7 +253,7 @@ namespace OverloadingOperations {
     }
 
     public object Clone() {
-      SquareMatrix clone = new SquareMatrix(Size);
+      SquareMatrix clone = new SquareMatrix(size);
       Array.Copy(matrix, clone.matrix, matrix.Length);
       return clone;
     }
@@ -279,34 +282,40 @@ namespace OverloadingOperations {
       SquareMatrix mymatrix1 = new SquareMatrix(matrixSize);
       SquareMatrix mymatrix2 = new SquareMatrix(matrixSize);
 
-      Console.WriteLine("\nМатрица 1:");
+      Console.WriteLine("\n Матрица 1:");
       Console.WriteLine(mymatrix1);
-      Console.WriteLine("Матрица 2:");
+      Console.WriteLine(" Матрица 2:");
       Console.WriteLine(mymatrix2);
-      Console.WriteLine("Сумма матриц:");
+      Console.WriteLine(" Сумма матриц:");
       Console.WriteLine(mymatrix1 + mymatrix2);
-      Console.WriteLine("Произведение матриц:");
+      Console.WriteLine(" Произведение матриц:");
       Console.WriteLine(mymatrix1 * mymatrix2);
-      Console.WriteLine("Определитель 1-ой матрицы:");
-      Console.WriteLine(mymatrix1.Determinant());
+      Console.WriteLine(" Определитель 1-ой матрицы: " + mymatrix1.Determinant());
       Console.WriteLine();
-      Console.WriteLine("Определитель 2-ой матрицы:");
-      Console.WriteLine(mymatrix2.Determinant());
+      Console.WriteLine(" Определитель 2-ой матрицы: " + mymatrix2.Determinant());
       Console.WriteLine();
-      Console.WriteLine("Матрица, обратная 1-ой:");
+      Console.WriteLine(" Матрица, обратная 1-ой:");
       Console.WriteLine(mymatrix1.Inverse());
       Console.WriteLine();
-      Console.WriteLine("Матрица, обратная 2-ой:");
+      Console.WriteLine(" Матрица, обратная 2-ой:");
       Console.WriteLine(mymatrix2.Inverse());
       Console.WriteLine();
-      Console.WriteLine("1-ая матрица больше 2-ой: " + (mymatrix1 > mymatrix2));
-      Console.WriteLine("1-ая матрица меньше 2-ой: " + (mymatrix1 < mymatrix2));
-      Console.WriteLine("1-ая матрица больше или равна 2-ой: " + (mymatrix1 >= mymatrix2));
-      Console.WriteLine("1-ая матрица меньше или равна 2-ой: " + (mymatrix1 <= mymatrix2));
-      Console.WriteLine("Матрицы равны: " + (mymatrix1 == mymatrix2));
-      Console.WriteLine("Матрицы не равны: " + (mymatrix1 != mymatrix2));
-      Console.WriteLine("1-ая матрица нулевая: " + mymatrix1.IsMatrixNull());
-      Console.WriteLine("2-ая матрица нулевая: " + mymatrix2.IsMatrixNull());
+      Console.WriteLine(" 1-ая матрица больше 2-ой: " + (mymatrix1 > mymatrix2));
+      Console.WriteLine();
+      Console.WriteLine(" 1-ая матрица меньше 2-ой: " + (mymatrix1 < mymatrix2));
+      Console.WriteLine();
+      Console.WriteLine(" 1-ая матрица больше или равна 2-ой: " + (mymatrix1 >= mymatrix2));
+      Console.WriteLine();
+      Console.WriteLine(" 1-ая матрица меньше или равна 2-ой: " + (mymatrix1 <= mymatrix2));
+      Console.WriteLine();
+      Console.WriteLine(" Матрицы равны: " + (mymatrix1 == mymatrix2));
+      Console.WriteLine();
+      Console.WriteLine(" Матрицы не равны: " + (mymatrix1 != mymatrix2));
+      Console.WriteLine();
+      Console.WriteLine(" 1-ая матрица нулевая: " + mymatrix1.IsMatrixNull());
+      Console.WriteLine();
+      Console.WriteLine(" 2-ая матрица нулевая: " + mymatrix2.IsMatrixNull());
+      Console.WriteLine();
     }
   }
 }
