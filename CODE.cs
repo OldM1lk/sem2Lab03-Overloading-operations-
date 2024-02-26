@@ -144,13 +144,13 @@ namespace OverloadingOperations {
       int result = 0;
 
       for (int columnIndex = 0; columnIndex < size; ++columnIndex) {
-        result += (columnIndex % 2 == 1 ? 1 : -1) * matrix[1, columnIndex] * 
+        result += (columnIndex % 2 == 1 ? 1 : -1) * matrix[1, columnIndex] *
                    GetSmallMatrix(1, columnIndex).Determinant();
       }
       return result;
     }
 
-    private SquareMatrix GetSmallMatrix (int row, int  column) {
+    private SquareMatrix GetSmallMatrix(int row, int column) {
       SquareMatrix result = new SquareMatrix(size - 1);
 
       for (int rowIndex = 0; rowIndex < size - 1; ++rowIndex) {
@@ -178,12 +178,20 @@ namespace OverloadingOperations {
       return result;
     }
 
-    public SquareMatrix Inverse () {
+    public SquareMatrix Inverse() {
       SquareMatrix result = new SquareMatrix(size);
 
+      if (size == 2) {
+        for (int rowIndex = 0; rowIndex < size; ++rowIndex) {
+          for (int columnIndex = 0; columnIndex < size; ++columnIndex) {
+
+          }
+        }
+      }
+
       for (int rowIndex = 0; rowIndex < size; ++rowIndex) {
-        for ( int columnIndex = 0; columnIndex < size; ++columnIndex) {
-          result.matrix[rowIndex, columnIndex] = (columnIndex + rowIndex) % 2 == 0 ? 1 : -1 * 
+        for (int columnIndex = 0; columnIndex < size; ++columnIndex) {
+          result.matrix[rowIndex, columnIndex] = (columnIndex + rowIndex) % 2 == 0 ? 1 : -1 *
                                                  GetSmallMatrix(rowIndex, columnIndex).Determinant();
         }
       }
@@ -253,11 +261,16 @@ namespace OverloadingOperations {
 
     public object Clone() {
       SquareMatrix clone = new SquareMatrix(size);
-      Array.Copy(matrix, clone.matrix, matrix.Length);
+      clone = (SquareMatrix)this.MemberwiseClone();
+
+      for (int rowIndex = 0; rowIndex < size; ++rowIndex) {
+        for (int columnIndex = 0; columnIndex < size; ++columnIndex) {
+          clone.matrix[rowIndex, columnIndex] = this.matrix[rowIndex, columnIndex];
+        }
+      }
       return clone;
     }
   }
-
   class InvalidMatrixSizeException : Exception {
     public InvalidMatrixSizeException(string message) : base(message) { }
   }
@@ -277,48 +290,34 @@ namespace OverloadingOperations {
   class Program {
     static void Main(string[] args) {
       Random random = new Random();
-      int matrixSize = random.Next(2, 5);
-      SquareMatrix mymatrix1 = new SquareMatrix(matrixSize);
-      SquareMatrix mymatrix2 = new SquareMatrix(matrixSize);
+      int matrixSize = random.Next(3, 5);
+      SquareMatrix myMatrix1 = new SquareMatrix(matrixSize);
+      SquareMatrix myMatrix2 = new SquareMatrix(matrixSize);
 
       Console.WriteLine("\n Матрица 1:");
-      Console.WriteLine(mymatrix1);
+      Console.WriteLine(myMatrix1);
       Console.WriteLine(" Матрица 2:");
-      Console.WriteLine(mymatrix2);
+      Console.WriteLine(myMatrix2);
       Console.WriteLine(" Сумма матриц:");
-      Console.WriteLine(mymatrix1 + mymatrix2);
+      Console.WriteLine(myMatrix1 + myMatrix2);
       Console.WriteLine(" Произведение матриц:");
-      Console.WriteLine(mymatrix1 * mymatrix2);
-      Console.WriteLine(" Определитель 1-ой матрицы: " + mymatrix1.Determinant());
-      Console.WriteLine();
-      Console.WriteLine(" Определитель 2-ой матрицы: " + mymatrix2.Determinant());
-      Console.WriteLine();
+      Console.WriteLine(myMatrix1 * myMatrix2);
+      Console.WriteLine(" Определитель 1-ой матрицы: " + myMatrix1.Determinant() + "\n");
+      Console.WriteLine(" Определитель 2-ой матрицы: " + myMatrix2.Determinant() + "\n");
       Console.WriteLine(" Матрица, обратная 1-ой:");
-      Console.WriteLine(mymatrix1.Inverse());
-      Console.WriteLine();
+      Console.WriteLine(myMatrix1.Inverse());
       Console.WriteLine(" Матрица, обратная 2-ой:");
-      Console.WriteLine(mymatrix2.Inverse());
-      Console.WriteLine();
-      Console.WriteLine(" 1-ая матрица больше 2-ой: " + (mymatrix1 > mymatrix2));
-      Console.WriteLine();
-      Console.WriteLine(" 1-ая матрица меньше 2-ой: " + (mymatrix1 < mymatrix2));
-      Console.WriteLine();
-      Console.WriteLine(" 1-ая матрица больше или равна 2-ой: " + (mymatrix1 >= mymatrix2));
-      Console.WriteLine();
-      Console.WriteLine(" 1-ая матрица меньше или равна 2-ой: " + (mymatrix1 <= mymatrix2));
-      Console.WriteLine();
-      Console.WriteLine(" Матрицы равны: " + (mymatrix1 == mymatrix2));
-      Console.WriteLine();
-      Console.WriteLine(" Матрицы не равны: " + (mymatrix1 != mymatrix2));
-      Console.WriteLine();
-      Console.WriteLine(" 1-ая матрица нулевая: " + mymatrix1.IsMatrixNull());
-      Console.WriteLine();
-      Console.WriteLine(" 2-ая матрица нулевая: " + mymatrix2.IsMatrixNull());
-      Console.WriteLine();
-      Console.WriteLine(" Hash code 1-ой матрицы : " + mymatrix1.GetHashCode());
-      Console.WriteLine();
-      Console.WriteLine(" Hash code 2-ой матрицы : " + mymatrix2.GetHashCode());
-      Console.WriteLine();
+      Console.WriteLine(myMatrix2.Inverse());
+      Console.WriteLine(" 1-ая матрица больше 2-ой: " + (myMatrix1 > myMatrix2) + "\n");
+      Console.WriteLine(" 1-ая матрица меньше 2-ой: " + (myMatrix1 < myMatrix2) + "\n");
+      Console.WriteLine(" 1-ая матрица больше или равна 2-ой: " + (myMatrix1 >= myMatrix2) + "\n");
+      Console.WriteLine(" 1-ая матрица меньше или равна 2-ой: " + (myMatrix1 <= myMatrix2) + "\n");
+      Console.WriteLine(" Матрицы равны: " + (myMatrix1 == myMatrix2) + "\n");
+      Console.WriteLine(" Матрицы не равны: " + (myMatrix1 != myMatrix2) + "\n");
+      Console.WriteLine(" 1-ая матрица нулевая: " + myMatrix1.IsMatrixNull() + "\n");
+      Console.WriteLine(" 2-ая матрица нулевая: " + myMatrix2.IsMatrixNull() + "\n");
+      Console.WriteLine(" Hash code 1-ой матрицы : " + myMatrix1.GetHashCode() + "\n");
+      Console.WriteLine(" Hash code 2-ой матрицы : " + myMatrix2.GetHashCode() + "\n");
     }
   }
 }
